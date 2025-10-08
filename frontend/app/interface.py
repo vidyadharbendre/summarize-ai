@@ -6,7 +6,9 @@ API_URL = os.environ.get("API_URL", "http://backend:8000/summarize")
 
 MODEL_CHOICES = {
     "T5-small": "t5",
-    "BART (Facebook)": "bart"
+    "BART (Facebook)": "bart",
+    "PEGASUS (Google)": "pegasus",
+    "DistilBART (Faster)": "distilbart"
 }
 
 # def get_summary(text, model_choice, max_length, min_length):

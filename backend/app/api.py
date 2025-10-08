@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 summarizer_instances = {
     "t5": SummarizerFactory.get_summarizer("t5"),
-    "bart": SummarizerFactory.get_summarizer("bart")
+    "bart": SummarizerFactory.get_summarizer("bart"),
+    "pegasus": SummarizerFactory.get_summarizer("pegasus"),
+    "distilbart": SummarizerFactory.get_summarizer("distilbart")
 }
 
 class TextRequest(BaseModel):
@@ -23,7 +25,7 @@ class SummaryResponse(BaseModel):
 @app.post("/summarize", response_model=SummaryResponse)
 async def summarize(
     request: TextRequest,
-    model_type: str = Query("t5", enum=["t5", "bart"])
+    model_type: str = Query("t5", enum=["t5", "bart", "pegasus", "distilbart"])
 ):
     # EXPLICIT DEBUGGING - This should show in logs
     print(f"🔍 DEBUG: Received request with max_length={request.max_length}, min_length={request.min_length}")

@@ -1,0 +1,18 @@
+# Models downloaded by transformers
+models/
+cache/
+hf_cache/
+.cache/
+transformers_cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual env
+.env/
+venv/

@@ -1,4 +1,4 @@
-from .summarizer import T5Summarizer, BartSummarizer
+from .summarizer import T5Summarizer, BartSummarizer, PegasusSummarizer, DistilBartSummarizer
 
 class SummarizerFactory:
     @staticmethod
@@ -7,5 +7,9 @@ class SummarizerFactory:
             return T5Summarizer()
         elif model_type == "bart":
             return BartSummarizer()
+        elif model_type == "pegasus":
+            return PegasusSummarizer()
+        elif model_type == "distilbart":
+            return DistilBartSummarizer()
         else:
-            raise ValueError(f"Unknown model type: {model_type}")
+            raise ValueError("Unsupported summarizer type")

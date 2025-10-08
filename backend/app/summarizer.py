@@ -94,3 +94,66 @@ class BartSummarizer(BaseSummarizer):
         except Exception as e:
             logger.error(f"BART error: {e}")
             return f"BART Error: {e}"
+
+class PegasusSummarizer(BaseSummarizer):
+    def __init__(self, model_name: str = "google/pegasus-cnn_dailymail"):
+        """PEGASUS model - specifically designed for summarization"""
+        self.pipeline = pipeline("summarization", model=model_name)
+
+    def summarize(self, text: str, max_length: int = 100, min_length: int = 30) -> str:
+        if not text.strip():
+            return "Please enter some text."
+            
+        logger.info(f"PEGASUS - Requested max: {max_length}, min: {min_length}")
+        
+        try:
+            # PEGASUS works well with these parameters
+            summary_list = self.pipeline(
+                text, 
+                max_length=max_length,
+                min_length=min_length,
+                do_sample=False,
+                truncation=True,
+                clean_up_tokenization_spaces=True
+            )
+            
+            result = summary_list[0]['summary_text']
+            word_count = len(result.split())
+            logger.info(f"PEGASUS generated {word_count} words")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"PEGASUS error: {e}")
+            return f"PEGASUS Error: {e}"
+
+class DistilBartSummarizer(BaseSummarizer):
+    def __init__(self, model_name: str = "sshleifer/distilbart-cnn-12-6"):
+        """DistilBART - Smaller, faster version of BART"""
+        self.pipeline = pipeline("summarization", model=model_name)
+
+    def summarize(self, text: str, max_length: int = 100, min_length: int = 30) -> str:
+        if not text.strip():
+            return "Please enter some text."
+            
+        logger.info(f"DistilBART - Requested max: {max_length}, min: {min_length}")
+        
+        try:
+            summary_list = self.pipeline(
+                text, 
+                max_length=max_length,
+                min_length=min_length,
+                do_sample=False,
+                truncation=True,
+                clean_up_tokenization_spaces=True
+            )
+            
+            result = summary_list[0]['summary_text']
+            word_count = len(result.split())
+            logger.info(f"DistilBART generated {word_count} words")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"DistilBART error: {e}")
+            return f"DistilBART Error: {e}"
