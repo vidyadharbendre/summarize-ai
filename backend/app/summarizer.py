@@ -13,6 +13,7 @@ class T5Summarizer(BaseSummarizer):
             logger.info(f"CUDA GPU available: {torch.cuda.get_device_name(0)}")
         else:
             logger.info("CUDA GPU not available, using CPU")
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
 
@@ -30,7 +31,6 @@ class T5Summarizer(BaseSummarizer):
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         logger.info(f"T5 - Requested max: {max_length}, min: {min_length}")
-
         try:
             summary_ids = self.model.generate(
                 inputs["input_ids"],
@@ -38,7 +38,7 @@ class T5Summarizer(BaseSummarizer):
                 max_length=max_length,
                 min_length=min_length,
                 length_penalty=2.0,
-                num_beams=4,
+                num_beams=6,
                 early_stopping=True,
                 no_repeat_ngram_size=2
             )
@@ -46,7 +46,6 @@ class T5Summarizer(BaseSummarizer):
             word_count = len(summary.split())
             logger.info(f"T5 generated {word_count} words, {len(summary_ids[0])} tokens")
             return summary
-
         except Exception as e:
             logger.error(f"T5 error: {e}")
             return f"T5 Error: {e}"
@@ -60,6 +59,7 @@ class BartSummarizer(BaseSummarizer):
             logger.info(f"CUDA GPU available: {torch.cuda.get_device_name(0)}")
         else:
             logger.info("CUDA GPU not available, using CPU")
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
 
@@ -92,7 +92,6 @@ class BartSummarizer(BaseSummarizer):
             word_count = len(summary.split())
             logger.info(f"BART generated {word_count} words, {len(summary_ids[0])} tokens")
             return summary
-
         except Exception as e:
             logger.error(f"BART error: {e}")
             return f"BART Error: {e}"
@@ -106,6 +105,7 @@ class PegasusSummarizer(BaseSummarizer):
             logger.info(f"CUDA GPU available: {torch.cuda.get_device_name(0)}")
         else:
             logger.info("CUDA GPU not available, using CPU")
+
         self.pipeline = pipeline("summarization", model=model_name, device=device)
 
     def summarize(self, text: str, max_length: int = 100, min_length: int = 30) -> str:
@@ -113,13 +113,19 @@ class PegasusSummarizer(BaseSummarizer):
             return "Please enter some text."
 
         logger.info(f"PEGASUS - Requested max: {max_length}, min: {min_length}")
-
         try:
             summary_list = self.pipeline(
                 text,
                 max_length=max_length,
                 min_length=min_length,
-                do_sample=False,
+                num_beams=6,
+                length_penalty=1.5,
+                no_repeat_ngram_size=3,
+                early_stopping=True,
+                do_sample=True,
+                temperature=0.7,
+                top_k=50,
+                top_p=0.95,
                 truncation=True,
                 clean_up_tokenization_spaces=True
             )
@@ -127,7 +133,6 @@ class PegasusSummarizer(BaseSummarizer):
             word_count = len(result.split())
             logger.info(f"PEGASUS generated {word_count} words")
             return result
-
         except Exception as e:
             logger.error(f"PEGASUS error: {e}")
             return f"PEGASUS Error: {e}"
@@ -141,6 +146,7 @@ class DistilBartSummarizer(BaseSummarizer):
             logger.info(f"CUDA GPU available: {torch.cuda.get_device_name(0)}")
         else:
             logger.info("CUDA GPU not available, using CPU")
+
         self.pipeline = pipeline("summarization", model=model_name, device=device)
 
     def summarize(self, text: str, max_length: int = 100, min_length: int = 30) -> str:
@@ -148,7 +154,6 @@ class DistilBartSummarizer(BaseSummarizer):
             return "Please enter some text."
 
         logger.info(f"DistilBART - Requested max: {max_length}, min: {min_length}")
-
         try:
             summary_list = self.pipeline(
                 text,
@@ -162,7 +167,6 @@ class DistilBartSummarizer(BaseSummarizer):
             word_count = len(result.split())
             logger.info(f"DistilBART generated {word_count} words")
             return result
-
         except Exception as e:
             logger.error(f"DistilBART error: {e}")
             return f"DistilBART Error: {e}"
