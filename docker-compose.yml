@@ -1,0 +1,22 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - HF_HOME=/app/hf_cache
+    volumes:
+      - backend_cache:/app/hf_cache
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "7860:7860"
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:8000/summarize
+
+volumes:
+  backend_cache:
